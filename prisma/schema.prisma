@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,34 +7,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserRole {
-  USER
-  ADMIN
-}
-
-enum MatchStatus {
-  SCHEDULED
-  IN_PROGRESS
-  COMPLETED
-  CANCELLED
-  POSTPONED
-}
-
 model User {
-  id             String    @id @default(cuid())
-  name           String?
-  email          String?   @unique
-  emailVerified  DateTime?
-  image          String?
-  hashedPassword String?
-  role           UserRole  @default(USER)
-  resetToken     String?
+  id               String    @id @default(cuid())
+  name             String?
+  email            String?   @unique
+  emailVerified    DateTime?
+  image            String?
+  hashedPassword   String?
+  role             UserRole  @default(USER)
+  resetToken       String?
   resetTokenExpiry DateTime?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-
-  accounts Account[]
-  sessions Session[]
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  accounts         Account[]
+  sessions         Session[]
 }
 
 model Account {
@@ -46,15 +29,14 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -85,63 +67,60 @@ model League {
 }
 
 model Team {
-  id                      String   @id @default(cuid())
+  id                      String           @id @default(cuid())
   name                    String
   logoUrl                 String?
-  teamKitColor           String
-  teamKitColorSecondary  String
-  teamKitColorThird      String
-  teamPantsColor         String
+  teamKitColor            String
+  teamKitColorSecondary   String
+  teamKitColorThird       String
+  teamPantsColor          String
   teamPantsColorSecondary String
-  teamPantsColorThird    String
-  teamSocksColor         String
+  teamPantsColorThird     String
+  teamSocksColor          String
   teamSocksColorSecondary String
-  teamSocksColorThird    String
-  createdAt              DateTime @default(now())
-  updatedAt              DateTime @updatedAt
-
-  league                 League?   @relation(fields: [leagueId], references: [id])
-  leagueId              String?
-  players               Player[]
-  homeMatches           Match[]   @relation("HomeTeam")
-  awayMatches           Match[]   @relation("AwayTeam")
-  matchLineups          MatchLineup[]
-  matchStatistics       MatchStatistic[]
+  teamSocksColorThird     String
+  createdAt               DateTime         @default(now())
+  updatedAt               DateTime         @updatedAt
+  leagueId                String?
+  awayMatches             Match[]          @relation("AwayTeam")
+  homeMatches             Match[]          @relation("HomeTeam")
+  matchLineups            MatchLineup[]
+  matchStatistics         MatchStatistic[]
+  Player                  Player[]
+  league                  League?          @relation(fields: [leagueId], references: [id])
 }
 
 model Player {
-  id           String   @id @default(cuid())
+  id           String        @id @default(cuid())
   firstName    String
   lastName     String
   jerseyNumber Int
   position     String
   dateOfBirth  DateTime
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  team         Team     @relation(fields: [teamId], references: [id])
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime
   teamId       String
   matchLineups MatchLineup[]
+  Team         Team          @relation(fields: [teamId], references: [id])
 
   @@index([teamId])
 }
 
 model Match {
-  id          String      @id @default(cuid())
-  matchDate   DateTime
-  venue       String
-  status      MatchStatus @default(SCHEDULED)
-  homeScore   Int        @default(0)
-  awayScore   Int        @default(0)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-
-  homeTeam    Team        @relation("HomeTeam", fields: [homeTeamId], references: [id])
-  homeTeamId  String
-  awayTeam    Team        @relation("AwayTeam", fields: [awayTeamId], references: [id])
-  awayTeamId  String
-  lineups     MatchLineup[]
-  statistics  MatchStatistic[]
+  id         String           @id @default(cuid())
+  matchDate  DateTime
+  venue      String
+  status     MatchStatus      @default(SCHEDULED)
+  homeScore  Int              @default(0)
+  awayScore  Int              @default(0)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  homeTeamId String
+  awayTeamId String
+  awayTeam   Team             @relation("AwayTeam", fields: [awayTeamId], references: [id])
+  homeTeam   Team             @relation("HomeTeam", fields: [homeTeamId], references: [id])
+  lineups    MatchLineup[]
+  statistics MatchStatistic[]
 
   @@index([matchDate])
   @@index([homeTeamId])
@@ -154,13 +133,12 @@ model MatchLineup {
   isStarter Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  match     Match    @relation(fields: [matchId], references: [id])
   matchId   String
-  team      Team     @relation(fields: [teamId], references: [id])
   teamId    String
-  player    Player   @relation(fields: [playerId], references: [id])
   playerId  String
+  match     Match    @relation(fields: [matchId], references: [id])
+  player    Player   @relation(fields: [playerId], references: [id])
+  team      Team     @relation(fields: [teamId], references: [id])
 
   @@unique([matchId, playerId])
   @@index([matchId])
@@ -177,11 +155,23 @@ model MatchStatistic {
   redCards       Int      @default(0)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-
-  match          Match    @relation(fields: [matchId], references: [id])
   matchId        String
-  team           Team     @relation(fields: [teamId], references: [id])
   teamId         String
+  match          Match    @relation(fields: [matchId], references: [id])
+  team           Team     @relation(fields: [teamId], references: [id])
 
   @@unique([matchId, teamId])
-} 
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum MatchStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  POSTPONED
+}

@@ -15,6 +15,9 @@ export type Team = {
   players: Player[];
 };
 
+/**
+cover selection of 5v5 or 11v11
+ */
 export type MatchType = '5v5' | '11v11';
 
 interface MatchState {

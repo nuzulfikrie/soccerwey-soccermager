@@ -79,10 +79,11 @@
     "zustand": "^4.5.2"
   },
   "prisma": {
-    "seed": "node --loader ts-node/esm prisma/seed.ts"
+    "seed": "node prisma/seed.js"
   },
   "devDependencies": {
     "@types/node": "^22.13.10",
+    "cross-env": "^7.0.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.2"
   }

@@ -1,10 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
-  eslint: {
-    ignoreDuringBuilds: true,
+  experimental: {
+    serverActions: {
+      allowedOrigins: ['localhost:3000'],
+      bodySizeLimit: '2mb'
+    }
   },
-  images: { unoptimized: true },
-};
+  images: {
+    domains: ['localhost'],
+  },
+}
 
-module.exports = nextConfig;
+export default nextConfig
