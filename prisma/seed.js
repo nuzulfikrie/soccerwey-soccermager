@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
+import { hash } from 'bcryptjs'; // Add this import
 
 const prisma = new PrismaClient();
-
 async function main() {
   console.log('Starting database seed...');
 
@@ -25,13 +25,14 @@ async function main() {
 
   // Create 10 Users (5 admins, 5 regular users)
   const users = await Promise.all(
-    Array(10).fill(null).map((_, index) => {
+    Array(10).fill(null).map(async (_, index) => {
+      const hashedPassword = await hash('admin123', 10); // Hash the password
       return prisma.user.create({
         data: {
           email: `user${index + 1}@soccerwey.com`,
           name: `User ${index + 1}`,
           role: index < 5 ? 'ADMIN' : 'USER',
-          hashedPassword: 'password123', // In production, use proper password hashing
+          hashedPassword: hashedPassword, // Store the hashed password
         }
       });
     })
@@ -95,9 +96,38 @@ async function main() {
       teams.push(team);
     }
   }
-
+  /**
+   * 
+  enum Position {
+    GK      // Goalkeeper
+    DEF     // Keep this for backward compatibility
+    MID     // Keep this for backward compatibility
+    FWD     // Keep this for backward compatibility
+    LB      // Left Back
+    CB      // Center Back
+    RB      // Right Back
+    CDM     // Central Defensive Midfielder
+    CM      // Central Midfielder
+    CAM     // Central Attacking Midfielder
+    LW      // Left Winger
+    RW      // Right Winger
+    ST      // Striker
+  }
+   */
   // Create 10 Players for each team
-  const positions = ['GK', 'DEF', 'MID', 'FWD'];
+  const positions = [
+    'GK',     // Goalkeeper
+    'CB',     // Center Back
+    'LB',     // Left Back
+    'RB',     // Right Back
+    'CDM',    // Central Defensive Midfielder
+    'CM',     // Central Midfielder
+    'CAM',    // Central Attacking Midfielder
+    'LW',     // Left Winger
+    'RW',     // Right Winger
+    'ST'      // Striker
+  ];
+
   for (const team of teams) {
     const lineup = await prisma.lineup.create({
       data: {
@@ -110,19 +140,112 @@ async function main() {
       }
     });
 
-    await Promise.all(
-      Array(10).fill(null).map((_, index) => {
-        return prisma.player.create({
-          data: {
-            name: `Player ${index + 1} - ${team.name}`,
-            number: index + 1,
-            position: positions[Math.floor(index / 3)],
-            isSubstitute: index > 6,
-            lineupId: lineup.id
-          }
-        });
+    // Create players with specific positions based on formation 4-3-3
+    await Promise.all([
+      // Goalkeeper
+      prisma.player.create({
+        data: {
+          name: `Goalkeeper - ${team.name}`,
+          number: 1,
+          position: 'GK',
+          isSubstitute: false,
+          lineupId: lineup.id
+        }
+      }),
+      // Defense line (4)
+      prisma.player.create({
+        data: {
+          name: `Left Back - ${team.name}`,
+          number: 2,
+          position: 'LB',
+          isSubstitute: false,
+          lineupId: lineup.id
+        }
+      }),
+      prisma.player.create({
+        data: {
+          name: `Center Back 1 - ${team.name}`,
+          number: 4,
+          position: 'CB',
+          isSubstitute: false,
+          lineupId: lineup.id
+        }
+      }),
+      prisma.player.create({
+        data: {
+          name: `Center Back 2 - ${team.name}`,
+          number: 5,
+          position: 'CB',
+          isSubstitute: false,
+          lineupId: lineup.id
+        }
+      }),
+      prisma.player.create({
+        data: {
+          name: `Right Back - ${team.name}`,
+          number: 3,
+          position: 'RB',
+          isSubstitute: false,
+          lineupId: lineup.id
+        }
+      }),
+      // Midfield line (3)
+      prisma.player.create({
+        data: {
+          name: `Defensive Mid - ${team.name}`,
+          number: 6,
+          position: 'CDM',
+          isSubstitute: false,
+          lineupId: lineup.id
+        }
+      }),
+      prisma.player.create({
+        data: {
+          name: `Central Mid - ${team.name}`,
+          number: 8,
+          position: 'CM',
+          isSubstitute: false,
+          lineupId: lineup.id
+        }
+      }),
+      prisma.player.create({
+        data: {
+          name: `Attacking Mid - ${team.name}`,
+          number: 10,
+          position: 'CAM',
+          isSubstitute: false,
+          lineupId: lineup.id
+        }
+      }),
+      // Forward line (3)
+      prisma.player.create({
+        data: {
+          name: `Left Wing - ${team.name}`,
+          number: 11,
+          position: 'LW',
+          isSubstitute: false,
+          lineupId: lineup.id
+        }
+      }),
+      prisma.player.create({
+        data: {
+          name: `Striker - ${team.name}`,
+          number: 9,
+          position: 'ST',
+          isSubstitute: false,
+          lineupId: lineup.id
+        }
+      }),
+      prisma.player.create({
+        data: {
+          name: `Right Wing - ${team.name}`,
+          number: 7,
+          position: 'RW',
+          isSubstitute: false,
+          lineupId: lineup.id
+        }
       })
-    );
+    ]);
   }
 
   // Create 10 Matches

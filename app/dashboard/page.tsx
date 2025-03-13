@@ -1,9 +1,9 @@
-import { getServerSession } from 'next-auth'
-import { redirect } from 'next/navigation'
+import { getServerSession } from 'next-auth';
+import { redirect } from 'next/navigation';
+import { authOptions } from '../api/auth/[...nextauth]/route';
 
 export default async function DashboardPage() {
-  const session = await getServerSession()
-
+  const session = await getServerSession(authOptions);  // Pass authOptions here
   {
 /**
 if user is not logged in, redirect to login page
@@ -20,9 +20,15 @@ if user is not logged in, redirect to login page
           <h2 className="text-xl font-semibold mb-4">Welcome, {session.user.name || 'User'}!</h2>
           <p className="text-muted-foreground">
             You are logged in as: {session.user.email}
+
+            {JSON.stringify(session)}
           </p>
           <p className="text-muted-foreground mt-2">
-            Role: {session.user.role || 'User'}
+            {/**
+             * get user role from db and display it
+             *  
+             */}
+            Role: {session.user.role}
           </p>
         </div>
 

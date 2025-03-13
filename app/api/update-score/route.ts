@@ -1,21 +1,32 @@
+import { prisma } from '@/lib/prisma';
+import { pusherServer } from '@/lib/pusher';
 import { NextResponse } from 'next/server';
-import { pusher } from '@/lib/pusher';
 
-export async function POST(req: Request) {
+export async function POST(request: Request) {
   try {
-    const body = await req.json();
-    const { teamId, score } = body;
+    const { teamId, score } = await request.json();
 
-    await pusher.trigger('match-updates', 'score-update', {
+    // Update the match score based on which team scored
+    const match = await prisma.match.update({
+      where: {
+        id: teamId.split('-')[1], // Extract match ID from teamId (e.g., "team-a-123")
+      },
+      data: {
+        [teamId.startsWith('team-a') ? 'homeScore' : 'awayScore']: score,
+      },
+    });
+
+    // Broadcast the score update to all connected clients
+    await pusherServer.trigger('match-updates', 'score-update', {
       teamId,
       score,
     });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json(match);
   } catch (error) {
     console.error('Error updating score:', error);
     return NextResponse.json(
-      { error: 'Failed to update score' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }

@@ -10,7 +10,7 @@ datasource db {
 model User {
   id               String    @id @default(cuid())
   name             String?
-  email            String?   @unique
+  email            String    @unique
   emailVerified    DateTime?
   image            String?
   hashedPassword   String?
@@ -22,6 +22,8 @@ model User {
   accounts         Account[]
   sessions         Session[]
   Team             Team[]
+
+  @@index([emailVerified])
 }
 
 model Account {
@@ -161,14 +163,14 @@ model MatchStatistic {
 }
 
 model Kit {
-  id        String   @id
+  id        String   @id @default(cuid())
   type      KitType
   teamId    String
   jersey    String
   pants     String
   socks     String
   createdAt DateTime @default(now())
-  updatedAt DateTime
+  updatedAt DateTime @updatedAt
   Team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
   Lineup    Lineup[]
 
@@ -177,13 +179,13 @@ model Kit {
 }
 
 model Lineup {
-  id        String   @id
+  id        String   @id @default(cuid())
   name      String
   teamId    String
   kitId     String
   formation String
   createdAt DateTime @default(now())
-  updatedAt DateTime
+  updatedAt DateTime @updatedAt
   Kit       Kit      @relation(fields: [kitId], references: [id])
   Team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
   Player    Player[]
@@ -213,7 +215,13 @@ enum KitType {
 
 enum Position {
   GK
-  DEF
-  MID
-  FWD
+  LB
+  CB
+  RB
+  CDM
+  CM
+  CAM
+  LW
+  RW
+  ST
 }
