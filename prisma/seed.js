@@ -11,6 +11,8 @@ async function main() {
     prisma.matchLineup.deleteMany(),
     prisma.match.deleteMany(),
     prisma.player.deleteMany(),
+    prisma.lineup.deleteMany(),
+    prisma.kit.deleteMany(),
     prisma.team.deleteMany(),
     prisma.league.deleteMany(),
     prisma.user.deleteMany(),
@@ -78,22 +80,14 @@ async function main() {
 
   console.log('Leagues seeded successfully');
 
-  // Seed Teams
+  // Seed Teams - IMPORTANT: removed the kit-related fields
   const manchesterUnited = await prisma.team.create({
     data: {
       id: 'clh1234567890mu',
       name: 'Manchester United',
       logoUrl: 'https://example.com/logos/manchester-united.png',
       leagueId: premierLeague.id,
-      teamKitColor: '#DA291C',
-      teamKitColorSecondary: '#000000',
-      teamKitColorThird: '#FFFFFF',
-      teamPantsColor: '#FFFFFF',
-      teamPantsColorSecondary: '#000000',
-      teamPantsColorThird: '#DA291C',
-      teamSocksColor: '#000000',
-      teamSocksColorSecondary: '#DA291C',
-      teamSocksColorThird: '#FFFFFF',
+      userId: john.id,
     },
   });
 
@@ -103,67 +97,126 @@ async function main() {
       name: 'Liverpool',
       logoUrl: 'https://example.com/logos/liverpool.png',
       leagueId: premierLeague.id,
-      teamKitColor: '#C8102E',
-      teamKitColorSecondary: '#FFFFFF',
-      teamKitColorThird: '#2D3238',
-      teamPantsColor: '#C8102E',
-      teamPantsColorSecondary: '#FFFFFF',
-      teamPantsColorThird: '#2D3238',
-      teamSocksColor: '#C8102E',
-      teamSocksColorSecondary: '#FFFFFF',
-      teamSocksColorThird: '#2D3238',
+      userId: jane.id,
     },
   });
 
   console.log('Teams seeded successfully');
 
+  // Seed Kits - Add kit information in the separate Kit table
+  const muMainKit = await prisma.kit.create({
+    data: {
+      id: 'clh1234567890muk1',
+      type: 'MAIN',
+      teamId: manchesterUnited.id,
+      jersey: '#DA291C',
+      pants: '#FFFFFF',
+      socks: '#000000',
+    },
+  });
+
+  const muSecondKit = await prisma.kit.create({
+    data: {
+      id: 'clh1234567890muk2',
+      type: 'SECOND',
+      teamId: manchesterUnited.id,
+      jersey: '#000000',
+      pants: '#000000',
+      socks: '#DA291C',
+    },
+  });
+
+  const lpMainKit = await prisma.kit.create({
+    data: {
+      id: 'clh1234567890lpk1',
+      type: 'MAIN',
+      teamId: liverpool.id,
+      jersey: '#C8102E',
+      pants: '#C8102E',
+      socks: '#C8102E',
+    },
+  });
+
+  const lpSecondKit = await prisma.kit.create({
+    data: {
+      id: 'clh1234567890lpk2',
+      type: 'SECOND',
+      teamId: liverpool.id,
+      jersey: '#FFFFFF',
+      pants: '#FFFFFF',
+      socks: '#FFFFFF',
+    },
+  });
+
+  console.log('Kits seeded successfully');
+
+  // Seed Lineups
+  const muLineup = await prisma.lineup.create({
+    data: {
+      id: 'clh1234567890mul1',
+      name: 'Main Formation',
+      teamId: manchesterUnited.id,
+      kitId: muMainKit.id,
+      formation: '4-3-3',
+    },
+  });
+
+  const lpLineup = await prisma.lineup.create({
+    data: {
+      id: 'clh1234567890lpl1',
+      name: 'Main Formation',
+      teamId: liverpool.id,
+      kitId: lpMainKit.id,
+      formation: '4-3-3',
+    },
+  });
+
+  console.log('Lineups seeded successfully');
+
   // Seed Players
-  const rashford = await prisma.player.create({
-    data: {
-      id: 'clh1234567890mr',
-      firstName: 'Marcus',
-      lastName: 'Rashford',
-      jerseyNumber: 10,
-      position: 'Forward',
-      dateOfBirth: new Date('1997-10-31'),
-      teamId: manchesterUnited.id,
-    },
-  });
-
-  const bruno = await prisma.player.create({
-    data: {
-      id: 'clh1234567890bf',
-      firstName: 'Bruno',
-      lastName: 'Fernandes',
-      jerseyNumber: 8,
-      position: 'Midfielder',
-      dateOfBirth: new Date('1994-09-08'),
-      teamId: manchesterUnited.id,
-    },
-  });
-
-  const salah = await prisma.player.create({
-    data: {
-      id: 'clh1234567890ms',
-      firstName: 'Mohamed',
-      lastName: 'Salah',
-      jerseyNumber: 11,
-      position: 'Forward',
-      dateOfBirth: new Date('1992-06-15'),
-      teamId: liverpool.id,
-    },
-  });
-
-  const vanDijk = await prisma.player.create({
-    data: {
-      id: 'clh1234567890vd',
-      firstName: 'Virgil',
-      lastName: 'van Dijk',
-      jerseyNumber: 4,
-      position: 'Defender',
-      dateOfBirth: new Date('1991-07-08'),
-      teamId: liverpool.id,
-    },
+  await prisma.player.createMany({
+    data: [
+      {
+        id: 'clh1234567890mr',
+        name: 'Marcus Rashford',
+        number: 10,
+        position: 'FWD',
+        lineupId: muLineup.id,
+        isSubstitute: false,
+        x: 75,
+        y: 80,
+      },
+      {
+        id: 'clh1234567890bf',
+        name: 'Bruno Fernandes',
+        number: 8,
+        position: 'MID',
+        lineupId: muLineup.id,
+        isSubstitute: false,
+        x: 50,
+        y: 60,
+      },
+      {
+        id: 'clh1234567890ms',
+        name: 'Mohamed Salah',
+        number: 11,
+        position: 'FWD',
+        lineupId: lpLineup.id,
+        isSubstitute: false,
+        x: 75,
+        y: 80,
+      },
+      {
+        id: 'clh1234567890vd',
+        name: 'Virgil van Dijk',
+        number: 4,
+        position: 'DEF',
+        lineupId: lpLineup.id,
+        isSubstitute: false,
+        x: 25,
+        y: 30,
+      },
+    ],
   });
 
   console.log('Players seeded successfully');
@@ -191,32 +244,32 @@ async function main() {
         id: 'clh1234567890ml1',
         matchId: match.id,
         teamId: manchesterUnited.id,
-        playerId: rashford.id,
-        position: 'Forward',
+        playerId: 'clh1234567890mr',
+        position: 'FWD',
         isStarter: true,
       },
       {
         id: 'clh1234567890ml2',
         matchId: match.id,
         teamId: manchesterUnited.id,
-        playerId: bruno.id,
-        position: 'Midfielder',
+        playerId: 'clh1234567890bf',
+        position: 'MID',
         isStarter: true,
       },
       {
         id: 'clh1234567890ml3',
         matchId: match.id,
         teamId: liverpool.id,
-        playerId: salah.id,
-        position: 'Forward',
+        playerId: 'clh1234567890ms',
+        position: 'FWD',
         isStarter: true,
       },
       {
         id: 'clh1234567890ml4',
         matchId: match.id,
         teamId: liverpool.id,
-        playerId: vanDijk.id,
-        position: 'Defender',
+        playerId: 'clh1234567890vd',
+        position: 'DEF',
         isStarter: true,
       },
     ],
@@ -265,4 +318,4 @@ main()
   })
   .finally(async () => {
     await prisma.$disconnect();
-  }); 
+  });
