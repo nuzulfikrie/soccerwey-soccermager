@@ -5,27 +5,27 @@
 		}
 	],
 	"settings": {
-		"workbench.colorTheme": "Monokai Dimmed",
-		//SETTINGS OPTIMIZED FOR NEXTJS 15 AND TYPESCRIPT
-		"editor.fontFamily": "JetBrainsMono Nerd Font",
 		"editor.formatOnSave": true,
-		"editor.codeActionsOnSave": {
-			"source.fixAll": "explicit",
-			"source.organizeImports": "explicit"
-		},
+		//formatter using typescript
 		"editor.defaultFormatter": "vscode.typescript-language-features",
+		"editor.codeActionsOnSave": {
+			"source.fixAll": "always",
+			"source.organizeImports": "always"
+		},
+		"editor.fontFamily": "JetBrainsMono Nerd Font",
+		"editor.fontLigatures": false,
+		"editor.fontWeight": "normal",
+		"editor.fontSize": 14,
+		"editor.lineHeight": 20,
 		"editor.tabSize": 2,
 		"editor.insertSpaces": true,
-		"editor.detectIndentation": false,
-		"editor.autoIndent": "none", 
+		"editor.detectIndentation": false, 
 
-		"terminal.integrated.shell.linux": "/bin/zsh",
-		"terminal.intergrated.font-family": "JetBrainsMono Nerd Font",
-		"terminal.intergrated.font-size": 12,
-		"terminal.intergrated.font-weight": "normal",
-		"terminal.intergrated.font-weight-bold": "bold",
-		"terminal.intergrated.font-weight-light": "light",
-		"terminal.intergrated.font-weight-medium": "medium",
-		"terminal.intergrated.font-weight-semibold": "semibold",
+    //terminal
+    "terminal.integrated.fontSize": 14,
+    "terminal.integrated.fontFamily": "JetBrainsMono Nerd Font",
+    "terminal.integrated.fontLigatures": false,
+    "terminal.integrated.fontWeight": "normal",
+    
 	}
 }
