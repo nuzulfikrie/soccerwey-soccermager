@@ -1,34 +1,26 @@
-import { getServerSession } from 'next-auth';
+'use client'
+import { useSession } from 'next-auth/react';
 import { redirect } from 'next/navigation';
-import { authOptions } from '../api/auth/[...nextauth]/route';
 
-export default async function DashboardPage() {
-  const session = await getServerSession(authOptions);  // Pass authOptions here
-  {
-/**
-if user is not logged in, redirect to login page
- */}
-  if (!session?.user) {
-    redirect('/login')
-  }
+export default function DashboardPage() {
+  const { data: session } = useSession({
+    required: true,
+    onUnauthenticated() {
+      redirect('/login');
+    },
+  });
 
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div className="bg-card p-6 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-4">Welcome, {session.user.name || 'User'}!</h2>
+          <h2 className="text-xl font-semibold mb-4">Welcome, {session?.user?.name || 'User'}!</h2>
           <p className="text-muted-foreground">
-            You are logged in as: {session.user.email}
-
-            {JSON.stringify(session)}
+            You are logged in as: {session?.user?.email}
           </p>
           <p className="text-muted-foreground mt-2">
-            {/**
-             * get user role from db and display it
-             *  
-             */}
-            Role: {session.user.role}
+            Role: {session?.user?.role}
           </p>
         </div>
 

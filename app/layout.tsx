@@ -11,14 +11,20 @@ export const metadata: Metadata = {
   description: 'Experience live soccer matches with real-time updates, statistics, and interactive features.',
 };
 
+
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+
   return (
+
     <html lang="en" className="h-full">
       <body className={cn(inter.className, "min-h-full bg-gradient-to-b from-green-50 to-white")}>
+
         <Providers>
           <div className="relative flex min-h-screen flex-col">
             {/* Navigation */}
